@@ -35,6 +35,11 @@ function safeLimit(url: URL): number {
   return Number.isFinite(parsed) ? Math.max(1, Math.min(parsed, 100)) : 50;
 }
 
+function resultCount(result: { results?: unknown[] }): number {
+  const first = result.results?.[0] as { count?: number } | undefined;
+  return Number(first?.count ?? 0);
+}
+
 async function overview(env: Env): Promise<Response> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const [events24h, terminal24h, unresolved, affected] = await env.DB.batch([
@@ -44,17 +49,12 @@ async function overview(env: Env): Promise<Response> {
     env.DB.prepare("SELECT COUNT(DISTINCT installation_hash) AS count FROM events WHERE timestamp >= ? AND installation_hash IS NOT NULL").bind(since),
   ]);
 
-  const count = (result: D1Result<unknown>): number => {
-    const first = result.results?.[0] as { count?: number } | undefined;
-    return Number(first?.count ?? 0);
-  };
-
   return json({
     window: "24h",
-    events: count(events24h),
-    terminalEvents: count(terminal24h),
-    unresolvedIssues: count(unresolved),
-    affectedInstallations: count(affected),
+    events: resultCount(events24h),
+    terminalEvents: resultCount(terminal24h),
+    unresolvedIssues: resultCount(unresolved),
+    affectedInstallations: resultCount(affected),
   });
 }
 

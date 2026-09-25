@@ -5,6 +5,8 @@ const MAX_TAG = 64;
 const MAX_RELEASE = 96;
 const MAX_SYMBOL = 160;
 const MAX_FRAMES = 64;
+const MAX_PAST_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+const MAX_FUTURE_SKEW_MS = 5 * 60 * 1000;
 
 const TOP_LEVEL_FORBIDDEN = new Set([
   "message",
@@ -94,11 +96,14 @@ function normalizePositiveInteger(value: unknown): number | undefined {
   return Math.min(value, 10_000_000);
 }
 
-function normalizeTimestamp(value: unknown, fallback: string): string {
-  if (typeof value !== "string") return fallback;
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return fallback;
-  return date.toISOString();
+function normalizeTimestamp(value: unknown, receivedAt: string): string {
+  const receivedTime = new Date(receivedAt).getTime();
+  if (typeof value !== "string") return receivedAt;
+
+  const parsed = new Date(value).getTime();
+  if (!Number.isFinite(parsed)) return receivedAt;
+  if (parsed < receivedTime - MAX_PAST_AGE_MS || parsed > receivedTime + MAX_FUTURE_SKEW_MS) return receivedAt;
+  return new Date(parsed).toISOString();
 }
 
 function normalizeTags(value: unknown): Record<string, string> {
@@ -161,11 +166,12 @@ export function normalizeEvent(
   if (!exceptionInput) throw new ValidationError("invalid_exception", "exception is required");
   assertNoForbiddenKeys(exceptionInput, EXCEPTION_FORBIDDEN);
 
-  const exceptionType = normalizeSymbol(exceptionInput.type, "Exception");
+  const exceptionType = normalizeSymbol(exceptionInput.type);
   if (!exceptionType) throw new ValidationError("invalid_exception", "exception.type is required");
 
   const runtimeInput = asRecord(input.runtime) ?? {};
   const deviceInput = asRecord(input.device) ?? {};
+  const installationHash = normalizeInstallationHash(input.installationHash);
 
   const release = boundedString(input.release, MAX_RELEASE) ?? "Dev";
   const project = normalizeTag(config.INGEST_PROJECT) || "nori-desktop";
@@ -196,9 +202,7 @@ export function normalizeEvent(
       architecture,
       ...(sessionType ? { sessionType } : {}),
     },
-    ...(normalizeInstallationHash(input.installationHash)
-      ? { installationHash: normalizeInstallationHash(input.installationHash) }
-      : {}),
+    ...(installationHash ? { installationHash } : {}),
     operation: normalizeOperation(input.operation),
     handled: typeof input.handled === "boolean" ? input.handled : true,
     terminal: typeof input.terminal === "boolean" ? input.terminal : false,

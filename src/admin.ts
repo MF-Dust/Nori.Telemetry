@@ -85,7 +85,8 @@ async function getIssue(issueId: string, env: Env): Promise<Response> {
 
   const events = await env.DB.prepare(
     `SELECT id, timestamp, received_at, release, environment, runtime_name, runtime_version,
-      os, architecture, session_type, operation, handled, terminal, exception_type, top_frame
+      os, architecture, session_type, operation, handled, terminal, exception_type, top_frame,
+      CASE WHEN r2_key <> '' THEN 1 ELSE 0 END AS archived
      FROM events WHERE issue_id = ? ORDER BY timestamp DESC LIMIT 25`,
   ).bind(issueId).all();
 
@@ -95,6 +96,7 @@ async function getIssue(issueId: string, env: Env): Promise<Response> {
 async function getEvent(eventId: string, env: Env): Promise<Response> {
   const row = await env.DB.prepare("SELECT r2_key FROM events WHERE id = ?").bind(eventId).first<{ r2_key: string }>();
   if (!row) return json({ error: "not_found" }, 404);
+  if (!row.r2_key) return json({ error: "payload_not_archived" }, 404);
 
   const object = await env.EVENTS.get(row.r2_key);
   if (!object) return json({ error: "payload_missing" }, 404);

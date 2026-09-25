@@ -57,8 +57,8 @@ export interface Env extends IngestConfig {
   DB: D1Database;
   EVENTS: R2Bucket;
   EVENT_QUEUE: Queue<NormalizedTelemetryEvent>;
-  INGEST_RATE_LIMITER: RateLimit;
   MAX_EVENT_BYTES?: string;
+  STORM_GUARD_SECONDS?: string;
   EVENT_RETENTION_DAYS?: string;
   MAINTENANCE_DELETE_LIMIT?: string;
   ARCHIVE_TERMINAL_EVENTS?: string;

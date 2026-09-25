@@ -108,16 +108,16 @@ top in-app frame file
 先安装依赖：
 
 ```bash
-npm install
+pnpm install
 ```
 
 创建资源：
 
 ```bash
-npx wrangler d1 create nori-telemetry
-npx wrangler r2 bucket create nori-telemetry-events
-npx wrangler queues create nori-telemetry-events
-npx wrangler queues create nori-telemetry-dead-letter
+pnpm wrangler d1 create nori-telemetry
+pnpm wrangler r2 bucket create nori-telemetry-events
+pnpm wrangler queues create nori-telemetry-events
+pnpm wrangler queues create nori-telemetry-dead-letter
 ```
 
 将 `wrangler d1 create` 输出的真实 database ID 写入 `wrangler.jsonc`，替换当前的：
@@ -129,19 +129,19 @@ npx wrangler queues create nori-telemetry-dead-letter
 应用 D1 migration：
 
 ```bash
-npm run db:migrate:remote
+pnpm db:migrate:remote
 ```
 
 管理 API 使用 Worker secret：
 
 ```bash
-npx wrangler secret put ADMIN_TOKEN
+pnpm wrangler secret put ADMIN_TOKEN
 ```
 
 最后部署：
 
 ```bash
-npm run deploy
+pnpm deploy
 ```
 
 Cloudflare 当前推荐新 Workers 项目使用 `wrangler.jsonc` 作为配置源，本仓库也按这个方式维护。
@@ -188,10 +188,10 @@ GET /v1/admin/events/{eventId}
 ## 本地开发
 
 ```bash
-npm run db:migrate:local
-npm run dev
-npm run typecheck
-npm test
+pnpm db:migrate:local
+pnpm dev
+pnpm typecheck
+pnpm test
 ```
 
 ## 与 Nori.Desktop 的迁移边界

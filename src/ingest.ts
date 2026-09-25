@@ -13,7 +13,7 @@ function json(body: unknown, status = 200): Response {
 
 function maxEventBytes(env: Env): number {
   const parsed = Number.parseInt(env.MAX_EVENT_BYTES ?? "", 10);
-  return Number.isFinite(parsed) && parsed >= 1024 ? Math.min(parsed, 1_048_576) : 131_072;
+  return Number.isFinite(parsed) && parsed >= 1024 ? Math.min(parsed, 262_144) : 65_536;
 }
 
 export async function ingest(request: Request, env: Env): Promise<Response> {
@@ -39,6 +39,18 @@ export async function ingest(request: Request, env: Env): Promise<Response> {
 
   try {
     const event = normalizeEvent(body, env);
+
+    // installationHash is preferred because it is stable without exposing a real device identifier.
+    // Anonymous/legacy clients intentionally share a conservative bucket per Cloudflare location.
+    const limitKey = event.installationHash ? `install:${event.installationHash}` : "anonymous";
+    const { success } = await env.INGEST_RATE_LIMITER.limit({ key: limitKey });
+    if (!success) {
+      return json({
+        error: "rate_limited",
+        message: "Too many telemetry events from this installation",
+      }, 429);
+    }
+
     await env.EVENT_QUEUE.send(event);
     return json({ accepted: true, eventId: event.eventId }, 202);
   } catch (error) {

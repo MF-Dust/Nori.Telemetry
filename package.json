@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "deploy:dry": "wrangler deploy --dry-run --outdir dist",
     "types": "wrangler types",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -14,8 +15,8 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260925.1",
-    "typescript": "latest",
-    "vitest": "^4.1.0",
-    "wrangler": "latest"
+    "typescript": "7.0.2",
+    "vitest": "5.0.1",
+    "wrangler": "4.139.0"
   }
 }

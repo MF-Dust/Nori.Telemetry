@@ -41,7 +41,7 @@ async function pruneOldEvents(env: Env): Promise<void> {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/health")) {
@@ -53,7 +53,7 @@ export default {
     }
 
     if (request.method === "POST" && url.pathname === "/v1/events") {
-      return ingest(request, env);
+      return ingest(request, env, ctx);
     }
 
     if (url.pathname.startsWith("/v1/admin/")) {

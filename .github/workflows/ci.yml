@@ -26,5 +26,5 @@ jobs:
         run: pnpm typecheck
       - name: Unit tests
         run: pnpm test
-      - name: Validate Worker bundle
-        run: pnpm deploy:dry
+      - name: Build Worker bundle
+        run: pnpm build

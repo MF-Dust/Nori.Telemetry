@@ -36,7 +36,8 @@ async function blockedByStormGuard(
 
   try {
     const url = new URL(request.url);
-    url.pathname = `/__nori_telemetry/storm/${event.installationHash}`;
+    const errorClass = encodeURIComponent(`${event.operation}:${event.exception.type}`);
+    url.pathname = `/__nori_telemetry/storm/${event.installationHash}/${errorClass}`;
     url.search = "";
     url.hash = "";
 
@@ -90,7 +91,7 @@ export async function ingest(
     if (await blockedByStormGuard(request, event, env, ctx)) {
       return json({
         error: "rate_limited",
-        message: "Telemetry storm guard suppressed this event",
+        message: "Telemetry storm guard suppressed this repeated event",
       }, 429);
     }
 

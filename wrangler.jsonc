@@ -9,7 +9,25 @@
   "vars": {
     "INGEST_PROJECT": "nori-desktop",
     "ENVIRONMENT": "production",
-    "MAX_EVENT_BYTES": "131072"
+    "MAX_EVENT_BYTES": "65536",
+    "EVENT_RETENTION_DAYS": "30",
+    "MAINTENANCE_DELETE_LIMIT": "2000",
+    "ARCHIVE_TERMINAL_EVENTS": "1"
+  },
+  "ratelimits": [
+    {
+      "name": "INGEST_RATE_LIMITER",
+      "namespace_id": "47501",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "17 3 * * *"
+    ]
   },
   "d1_databases": [
     {

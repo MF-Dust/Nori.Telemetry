@@ -22,9 +22,15 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-      - name: Typecheck
+
+      - name: Typecheck Worker
         run: pnpm typecheck
       - name: Unit tests
         run: pnpm test
       - name: Build Worker bundle
         run: pnpm build
+
+      - name: Typecheck Dashboard
+        run: pnpm --dir frontend typecheck
+      - name: Build Dashboard
+        run: pnpm --dir frontend build

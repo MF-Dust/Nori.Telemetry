@@ -1,0 +1,21 @@
+{
+  "name": "@nori/telemetry",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "types": "wrangler types",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:migrate:local": "wrangler d1 migrations apply nori-telemetry --local",
+    "db:migrate:remote": "wrangler d1 migrations apply nori-telemetry --remote"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260925.1",
+    "typescript": "latest",
+    "vitest": "^4.1.0",
+    "wrangler": "latest"
+  }
+}

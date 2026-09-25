@@ -7,7 +7,9 @@
   "scripts": {
     "build": "esbuild src/index.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=dist/index.js",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "dashboard:typecheck": "pnpm --dir frontend typecheck",
+    "dashboard:build": "pnpm --dir frontend build"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20260925.1",
